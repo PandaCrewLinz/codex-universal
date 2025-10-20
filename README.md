@@ -1,3 +1,7 @@
+# Notice
+
+This is just a fork of the [original repository ](https://github.com/openai/codex-universal). This fork is optimized for dotnet.
+
 # codex-universal
 
 `codex-universal` is a reference implementation of the base Docker image available in [OpenAI Codex](http://platform.openai.com/docs/codex).

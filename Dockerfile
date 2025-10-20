@@ -40,7 +40,7 @@ RUN apt-get update \
         liblzma-dev=5.6.* \
         libncurses-dev=6.4+20240113-* \
         libnss3-dev=2:3.98-* \
-        libpq-dev=16.9-* \
+        libpq-dev=16.10-* \
         libpsl-dev=0.21.* \
         libpython3-dev=3.12.* \
         libreadline-dev=8.2-* \
@@ -165,65 +165,65 @@ RUN git -c advice.detachedHead=0 clone --branch "$NVM_VERSION" --depth 1 https:/
     && pnpm store prune || true \
     && yarn cache clean || true
 
-### BUN ###
+# ### BUN ###
 
-ARG BUN_VERSION=1.2.14
-RUN mise use --global "bun@${BUN_VERSION}" \
-    && mise cache clear || true \
-    && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
+# ARG BUN_VERSION=1.2.14
+# RUN mise use --global "bun@${BUN_VERSION}" \
+#     && mise cache clear || true \
+#     && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
 
-### JAVA ###
+# ### JAVA ###
 
-ARG GRADLE_VERSION=8.14
-ARG MAVEN_VERSION=3.9.10
-# OpenJDK 11 is not available for arm64. Codex Web only uses amd64 which
-# does support 11.
-ARG AMD_JAVA_VERSIONS="21 17 11"
-ARG ARM_JAVA_VERSIONS="21 17"
+# ARG GRADLE_VERSION=8.14
+# ARG MAVEN_VERSION=3.9.10
+# # OpenJDK 11 is not available for arm64. Codex Web only uses amd64 which
+# # does support 11.
+# ARG AMD_JAVA_VERSIONS="21 17 11"
+# ARG ARM_JAVA_VERSIONS="21 17"
 
-RUN JAVA_VERSIONS="$( [ "$TARGETARCH" = "arm64" ] && echo "$ARM_JAVA_VERSIONS" || echo "$AMD_JAVA_VERSIONS" )" \
-    && for v in $JAVA_VERSIONS; do mise install "java@${v}"; done \
-    && mise use --global "java@${JAVA_VERSIONS%% *}" \
-    && mise use --global "gradle@${GRADLE_VERSION}" \
-    && mise use --global "maven@${MAVEN_VERSION}" \
-    && mise cache clear || true \
-    && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
+# RUN JAVA_VERSIONS="$( [ "$TARGETARCH" = "arm64" ] && echo "$ARM_JAVA_VERSIONS" || echo "$AMD_JAVA_VERSIONS" )" \
+#     && for v in $JAVA_VERSIONS; do mise install "java@${v}"; done \
+#     && mise use --global "java@${JAVA_VERSIONS%% *}" \
+#     && mise use --global "gradle@${GRADLE_VERSION}" \
+#     && mise use --global "maven@${MAVEN_VERSION}" \
+#     && mise cache clear || true \
+#     && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
 
-### SWIFT ###
+# ### SWIFT ###
 
-ARG SWIFT_VERSIONS="6.1 5.10.1"
-# mise currently broken for swift on ARM
-RUN if [ "$TARGETARCH" = "amd64" ]; then \
-      for v in $SWIFT_VERSIONS; do \
-        mise install "swift@${v}"; \
-      done && \
-      mise use --global "swift@${SWIFT_VERSIONS%% *}" \
-      && mise cache clear || true \
-      && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"; \
-    else \
-      echo "Skipping Swift install on $TARGETARCH"; \
-    fi
+# ARG SWIFT_VERSIONS="6.1 5.10.1"
+# # mise currently broken for swift on ARM
+# RUN if [ "$TARGETARCH" = "amd64" ]; then \
+#       for v in $SWIFT_VERSIONS; do \
+#         mise install "swift@${v}"; \
+#       done && \
+#       mise use --global "swift@${SWIFT_VERSIONS%% *}" \
+#       && mise cache clear || true \
+#       && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"; \
+#     else \
+#       echo "Skipping Swift install on $TARGETARCH"; \
+#     fi
 
-### RUST ###
+# ### RUST ###
 
-ARG RUST_VERSIONS="1.89.0 1.88.0 1.87.0 1.86.0 1.85.1 1.84.1 1.83.0"
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none \
-    && . "$HOME/.cargo/env" \
-    && echo 'source $HOME/.cargo/env' >> /etc/profile \
-    && rustup toolchain install $RUST_VERSIONS --profile minimal --component rustfmt --component clippy \
-    && rustup default ${RUST_VERSIONS%% *}
+# ARG RUST_VERSIONS="1.89.0 1.88.0 1.87.0 1.86.0 1.85.1 1.84.1 1.83.0"
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none \
+#     && . "$HOME/.cargo/env" \
+#     && echo 'source $HOME/.cargo/env' >> /etc/profile \
+#     && rustup toolchain install $RUST_VERSIONS --profile minimal --component rustfmt --component clippy \
+#     && rustup default ${RUST_VERSIONS%% *}
 
-### RUBY ###
+# ### RUBY ###
 
-ARG RUBY_VERSIONS="3.2.3 3.3.8 3.4.4"
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libyaml-dev=0.2.* \
-    libgmp-dev=2:6.3.* \
-    && rm -rf /var/lib/apt/lists/* \
-    && for v in $RUBY_VERSIONS; do mise install "ruby@${v}"; done \
-    && mise use --global "ruby@${RUBY_VERSIONS%% *}" \
-    && mise cache clear || true \
-    && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
+# ARG RUBY_VERSIONS="3.2.3 3.3.8 3.4.4"
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     libyaml-dev=0.2.* \
+#     libgmp-dev=2:6.3.* \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && for v in $RUBY_VERSIONS; do mise install "ruby@${v}"; done \
+#     && mise use --global "ruby@${RUBY_VERSIONS%% *}" \
+#     && mise cache clear || true \
+#     && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
 
 ### C++ ###
 # gcc is already installed via apt-get above, so these are just additional linters, etc.
@@ -238,50 +238,61 @@ RUN curl -L --fail https://github.com/bazelbuild/bazelisk/releases/download/${BA
     && chmod +x /usr/local/bin/bazelisk \
     && ln -s /usr/local/bin/bazelisk /usr/local/bin/bazel
 
-### GO ###
+# ### GO ###
 
-ARG GO_VERSIONS="1.24.3 1.23.8 1.22.12"
-ARG GOLANG_CI_LINT_VERSION=2.1.6
+# ARG GO_VERSIONS="1.24.3 1.23.8 1.22.12"
+# ARG GOLANG_CI_LINT_VERSION=2.1.6
 
-# Go defaults GOROOT to /usr/local/go - we just need to update PATH
-ENV PATH=/usr/local/go/bin:$HOME/go/bin:$PATH
-RUN for v in $GO_VERSIONS; do mise install "go@${v}"; done \
-    && mise use --global "go@${GO_VERSIONS%% *}" \
-    && mise use --global "golangci-lint@${GOLANG_CI_LINT_VERSION}" \
-    && mise cache clear || true \
-    && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
+# # Go defaults GOROOT to /usr/local/go - we just need to update PATH
+# ENV PATH=/usr/local/go/bin:$HOME/go/bin:$PATH
+# RUN for v in $GO_VERSIONS; do mise install "go@${v}"; done \
+#     && mise use --global "go@${GO_VERSIONS%% *}" \
+#     && mise use --global "golangci-lint@${GOLANG_CI_LINT_VERSION}" \
+#     && mise cache clear || true \
+#     && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
 
-### PHP ###
+# ### PHP ###
 
-ARG PHP_VERSIONS="8.4 8.3 8.2"
-ARG COMPOSER_ALLOW_SUPERUSER=1
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        autoconf=2.71-* \
-        bison=2:3.8.* \
-        libgd-dev=2.3.* \
-        libedit-dev=3.1-* \
-        libicu-dev=74.2-* \
-        libjpeg-dev=8c-* \
-        libonig-dev=6.9.* \
-        libpng-dev=1.6.* \
-        libpq-dev=16.9-* \
-        libzip-dev=1.7.* \
-        openssl=3.0.* \
-        re2c=3.1-* \
-    && rm -rf /var/lib/apt/lists/* \
-    && for v in $PHP_VERSIONS; do mise install "php@${v}"; done \
-    && mise use --global "php@${PHP_VERSIONS%% *}" \
-    && mise cache clear || true \
-    && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
+# ARG PHP_VERSIONS="8.4 8.3 8.2"
+# ARG COMPOSER_ALLOW_SUPERUSER=1
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#         autoconf=2.71-* \
+#         bison=2:3.8.* \
+#         libgd-dev=2.3.* \
+#         libedit-dev=3.1-* \
+#         libicu-dev=74.2-* \
+#         libjpeg-dev=8c-* \
+#         libonig-dev=6.9.* \
+#         libpng-dev=1.6.* \
+#         libpq-dev=16.9-* \
+#         libzip-dev=1.7.* \
+#         openssl=3.0.* \
+#         re2c=3.1-* \
+#     && rm -rf /var/lib/apt/lists/* \
+#     && for v in $PHP_VERSIONS; do mise install "php@${v}"; done \
+#     && mise use --global "php@${PHP_VERSIONS%% *}" \
+#     && mise cache clear || true \
+#     && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
 
-### ELIXIR ###
+# ### ELIXIR ###
 
-ARG ERLANG_VERSION=27.1.2
-ARG ELIXIR_VERSION=1.18.3
-RUN mise install "erlang@${ERLANG_VERSION}" "elixir@${ELIXIR_VERSION}-otp-27" \
-    && mise use --global "erlang@${ERLANG_VERSION}" "elixir@${ELIXIR_VERSION}-otp-27" \
-    && mise cache clear || true \
-    && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
+# ARG ERLANG_VERSION=27.1.2
+# ARG ELIXIR_VERSION=1.18.3
+# RUN mise install "erlang@${ERLANG_VERSION}" "elixir@${ELIXIR_VERSION}-otp-27" \
+#     && mise use --global "erlang@${ERLANG_VERSION}" "elixir@${ELIXIR_VERSION}-otp-27" \
+#     && mise cache clear || true \
+#     && rm -rf "$HOME/.cache/mise" "$HOME/.local/share/mise/downloads"
+
+## Dotnet
+RUN sudo curl -sSL https://gist.githubusercontent.com/JKamsker/66bda2c1196276339a479ea1857cf606/raw/bc872e5f4ea8d9410903f95a23a5c539883a39d3/install-dotnet-parameter.sh | sudo bash -s -- -v 6.0 -t "dotnet-ef,dotnet-aspnet-codegenerator" && \
+    sudo apt-get install -y libsqlite3-mod-spatialite
+
+# sudo apt-get install -y libsqlite3-mod-spatialite
+
+## codex
+RUN bash -lc ". $NVM_DIR/nvm.sh && nvm use ${NODE_VERSION} && npm install -g @openai/codex"
+
+
 
 ### SETUP SCRIPTS ###
 
